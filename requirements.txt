@@ -1,0 +1,7 @@
+numpy
+trimesh >= 3.9.0
+cherrypy
+pillow
+scipy
+transforms3d
+torch

@@ -1,0 +1,5 @@
+easydict
+transforms3d
+numpy
+pathlib
+mathutils

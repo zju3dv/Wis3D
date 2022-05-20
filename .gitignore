@@ -1,0 +1,13 @@
+__pycache__
+_ext
+*.pyc
+*.so
+wis3d.egg-info/
+*.ply
+node_modules
+.DS_Store
+package-lock.json
+.idea
+.vscode
+build/
+dist
