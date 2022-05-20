@@ -1,8 +1,7 @@
-# Wis3d: A web-based 3D visualization tool for 3D computer vision
-[Insallation](#basic-installation) | [Tutorial](#basic-installation) | [Documentation](http://dgpu.idr.ai:19092/)
+# Wis3D: A web-based 3D visualization tool for 3D computer vision
+[Installation](#basic-installation) | [Tutorial](#basic-installation) | [Documentation](http://dgpu.idr.ai:19092/)
 
-
-Wis3D is a library used in 3D deep learning and contains the operations of the 3D basic geometries, 3D bounding box, point cloud and mesh. Especially, it contains a visualizer that works like [TensorBoard](https://www.tensorflow.org/tensorboard), but for 3D visualization.
+Wis3D is a web-based 3D visualization tool built for 3D computer vision researchers. You can import 3D bounding box, point clouds, meshes and feature correspondences directly from your python code and view them in your local browser. It can be considered as a visualizer that works like [TensorBoard](https://www.tensorflow.org/tensorboard) with 3D data as the first-class citizen.
 
 <p align="center">
   <img src="docs/source/_static/introduction/3d_scene_demo.gif" width="44%" />
@@ -12,9 +11,11 @@ Wis3D is a library used in 3D deep learning and contains the operations of the 3
 
 ## Basic Installation
 
-### 1. Install from wheel file
+### 1. Install from PyPI
 
-Go to the release page, download the latest release, and then run `pip install /path/to/the/wheel/file`
+```bash
+pip install wis3d
+```
 
 ### 2. Build from source
 
@@ -108,9 +109,9 @@ wis3d.add_spheres(np.array([[0, 1, 0], [0, 0, 1]]), np.array([0.25, 0.5]),np.arr
 ```
 You can also reference to `examples/test.py`. For more usage, see [Documentation](http://dgpu.idr.ai:19092/)
 
-### Start Web Server
+### Start the Web Server
 
-Start the web service to see the visualization.
+Start the web service to view the visualization in the browser.
 
 ```bash
 wis3d --vis_dir $path_to_vis_dir --host 0.0.0.0 -port 19090
