@@ -1,23 +1,21 @@
 # Wis3D: A web-based 3D visualization tool for 3D computer vision
 [Installation](#basic-installation) | [Tutorial](#basic-installation) | [Documentation](http://dgpu.idr.ai:19092/)
 
-Wis3D is a web-based 3D visualization tool built for 3D computer vision researchers. You can import 3D bounding box, point clouds, meshes and feature correspondences directly from your python code and view them in your local browser. It can be considered as a visualizer that works like [TensorBoard](https://www.tensorflow.org/tensorboard) with 3D data as the first-class citizen.
-
+Wis3D is a web-based 3D visualization tool built for 3D computer vision researchers. You can import 3D bounding box, point clouds, meshes and feature correspondences directly from your python code and view them in your local browser. You can think of it as [TensorBoard](https://www.tensorflow.org/tensorboard) but with 3D data as the first-class citizen.
 <p align="center">
   <img src="docs/source/_static/introduction/3d_scene_demo.gif" width="44%" />
   <img src="docs/source/_static/introduction/human_demo.gif" width="44%" />
   <img src="docs/source/_static/introduction/keypoint_correspondences_demo.gif" width="45%" />
 </p>
-
 ## Basic Installation
 
-### 1. Install from PyPI
+### Install from PyPI
 
 ```bash
 pip install wis3d
 ```
 
-### 2. Build from source
+### or Build from source
 
 1. install [Node.js](https://nodejs.org/en/download/)
 2. run `pip install -r requirements.txt`
@@ -127,7 +125,6 @@ Open your browser, and enter http://localhost:19090 to see the results.
 
 
 ## Citation
-
 ```
 @article{sun2022onepose,
     title={{OnePose}: One-Shot Object Pose Estimation without {CAD} Models},
