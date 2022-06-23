@@ -7,6 +7,7 @@ Wis3D is a web-based 3D visualization tool built for 3D computer vision research
   <img src="docs/source/_static/introduction/human_demo.gif" width="44%" />
   <img src="docs/source/_static/introduction/keypoint_correspondences_demo.gif" width="45%" />
 </p>
+
 ## Basic Installation
 
 ### Install from PyPI
