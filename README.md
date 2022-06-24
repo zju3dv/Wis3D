@@ -1,11 +1,11 @@
 # Wis3D: A web-based 3D visualization tool for 3D computer vision
-[Installation](#basic-installation) | [Tutorial](#basic-installation) | [Documentation](http://dgpu.idr.ai:19092/)
+[Online Demo](http://wis3d.idr.ai/) | [Installation](#basic-installation) | [Tutorial](#basic-installation) | [Documentation](https://wis3d.readthedocs.io/en/latest/)
 
 Wis3D is a web-based 3D visualization tool built for 3D computer vision researchers. You can import 3D bounding box, point clouds, meshes and feature correspondences directly from your python code and view them in your local browser. You can think of it as [TensorBoard](https://www.tensorflow.org/tensorboard) but with 3D data as the first-class citizen.
 <p align="center">
-  <img src="docs/source/_static/introduction/3d_scene_demo.gif" width="44%" />
-  <img src="docs/source/_static/introduction/human_demo.gif" width="44%" />
-  <img src="docs/source/_static/introduction/keypoint_correspondences_demo.gif" width="45%" />
+  <img src="https://github.com/zju3dv/Wis3D/blob/main/docs/source/_static/introduction/3d_scene_demo.gif?raw=true" width="44%" />
+  <img src="https://github.com/zju3dv/Wis3D/blob/main/docs/source/_static/introduction/human_demo.gif?raw=true" width="44%" />
+  <img src="https://github.com/zju3dv/Wis3D/blob/main/docs/source/_static/introduction/keypoint_correspondences_demo.gif?raw=true" width="45%" />
 </p>
 
 ## Basic Installation
@@ -35,8 +35,8 @@ pip install wis3d
 
 ## Web Page
 
-![](docs/source/_static/tutorials/3d_objects/3d_objects.png)
-![](docs/source/_static/tutorials/keypoint_correspondences/keypoint_correspondences.png)
+![](https://github.com/zju3dv/Wis3D/blob/main/docs/source/_static/tutorials/3d_objects/3d_objects.png?raw=true)
+![](https://github.com/zju3dv/Wis3D/blob/main/docs/source/_static/tutorials/keypoint_correspondences/keypoint_correspondences.png?raw=true)
 
 ##  Quick Start
 ### Add visualization data
