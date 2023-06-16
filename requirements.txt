@@ -1,5 +1,5 @@
 numpy
-trimesh >= 3.9.0
+trimesh>=3.9.0
 cherrypy
 pillow
 scipy
