@@ -8,9 +8,8 @@ Cloning Wis3D
 
 .. code-block:: bash
 
-    git clone https://gitlab.sh.sensetime.com/3dv-research/wis3d.git
+    git clone https://github.com/zju3dv/Wis3D.git
 
-.. todo:: update gitlab link to github
 
 Install dependencies
 =======================

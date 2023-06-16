@@ -25,12 +25,12 @@ add_point_cloud
    :noindex: 
 
    Add a point cloud by file path.
-   
    Support importing point clouds from STL, OBJ, PLY, etc.
    
    :Parameters:   **path** - path to the point cloud file
 
       **name** - output name of the point cloud
+
 
 
 .. method:: Wis3D.add_point_cloud(self, vertices: Union[np.ndarray, torch.Tensor], colors: Union[np.ndarray, torch.Tensor] = None, *, name: str = None) -> None
@@ -42,7 +42,7 @@ add_point_cloud
 
       **colors** - colors of the points, shape: `(n, 3)`
 
-      **name** - output name of the poitn cloud
+      **name** - output name of the point cloud
 
 
 .. method:: Wis3D.add_point_cloud(self, pcd: trimesh.PointCloud, name: str = None) -> None
@@ -52,7 +52,7 @@ add_point_cloud
    
    :Parameters:   **pcd** - point cloud loaded by `trimesh`
 
-      **name** - output name of the poitn cloud
+      **name** - output name of the point cloud
 
 
 add_mesh
@@ -70,9 +70,16 @@ add_mesh
       **name** - output name of the mesh
 
 
-.. method:: Wis3D.add_mesh(self, vertices: Union[np.ndarray, torch.Tensor], faces: Union[np.ndarray, torch.Tensor], vertex_colors: Union[np.ndarray, torch.Tensor], *, name: str = None) -> None
+.. method:: Wis3D.add_mesh
    :noindex: 
 
+   self,
+   vertices: Union[np.ndarray, torch.Tensor],
+   faces: Union[np.ndarray, torch.Tensor],
+   vertex_colors: Union[np.ndarray, torch.Tensor],
+   *,
+   name: str = None
+   ) -> None:
    Add a mesh loaded by mesh definition
    
    :Parameters:   **vertices** - vertices of the mesh, shape: `(n, 3)`
@@ -122,7 +129,7 @@ add_image
 
    Add an image by `PIL.Image.Image`
    
-   :Parameters:   **image** - image loaded by `PIL.Image.Image`
+   :Parameters:   **image** - image loaded by `PIL.Image.open`
 
       **name** - output name of the image
 
@@ -135,19 +142,19 @@ add_boxes
 
    Add boxes by corners
    
-   :Parameters:   **corners** - eight corners of the boxese, shape: `(n, 8, 3)` or `(8, 3)`
+   :Parameters:   **corners** - eight corners of the boxes, shape: `(n, 8, 3)` or `(8, 3)`
 
       **order** - order of the corners, the default indices are defined as
-        
+
         ::
-        
-                 4 --- 5        y   
+
+                 4 --- 5        y
                 /|   / |        ｜
               7 --- 6  |        ｜
               |  0--|- 1        o —— —— x
               | /   | /        /
               3 --- 2         z
-        
+
       **labels** - label for each box
 
       **name** - output name for these boxes
@@ -172,7 +179,7 @@ add_boxes
 add_lines
 =========
 
-.. automethod:: Wis3D.add_lines(self, start_points: Union[np.ndarray, torch.Tensor], end_points: Union[np.ndarray, torch.Tensor], colors: Union[np.ndarray, torch.Tensor] = None, *, name: str = None) -> None
+.. automethod:: Wis3D.add_lines(self, start_points: Union[np.ndarray, torch.Tensor], end_points: Union[np.ndarray, torch.Tensor], colors: Union[np.ndarray, torch.Tensor] = None, *, name: str = Non
 
 add_voxel
 =========
@@ -204,15 +211,35 @@ add_voxel
 add_spheres
 ===========
 
-.. automethod:: Wis3D.add_spheres(self, centers: Union[np.ndarray, torch.Tensor], radius: Union[float, np.ndarray, torch.Tensor], colors = None, *, name = None) -> None
+.. automethod:: Wis3D.add_spheres
 
 add_camera_trajectory
 =====================
 
-.. automethod:: Wis3D.add_camera_trajectory(self, poses: Union[np.ndarray, torch.Tensor], *, name: str = None) -> None
+.. automethod:: Wis3D.add_camera_trajectory
 
 add_keypoint_correspondences
 ============================
 
 .. automethod:: Wis3D.add_keypoint_correspondences
+
+increase_scene_id
+=================
+
+.. automethod:: Wis3D.increase_scene_id(self)
+
+add_box_by_6border
+==================
+
+.. automethod:: Wis3D.add_box_by_6border(self, xmin, ymin, zmin, xmax, ymax, zmax, name=None)
+
+add_camera_pose
+===============
+
+.. automethod:: Wis3D.add_camera_pose(self, pose: Union[np.ndarray, torch.Tensor], *, name: str = None) -> None
+
+add_rays
+========
+
+.. automethod:: Wis3D.add_rays(self, rays_o, rays_d, max=10.0, min=0.0, sample=1.0, name=None)
 

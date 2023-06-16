@@ -49,5 +49,18 @@ After adding data to the Wis3D, start the Web server.
 ``verbose`` decides whether to let `CherryPy <https://docs.cherrypy.dev/en/latest/>`_ log detailed information, default is ``False``.
 
 
+Command line tools
+==============
 
+We provide a command line tool to help you quickly add object files to Wis3D and start the Web server without the need of writing Python code.
+
+.. code-block:: bash
+
+    w3dcli FILES --host HOST
+
+``FILES`` is the files to be added to Wis3D. The files can only be files in the format of jpg, png, ply, and obj.
+
+``HOST`` is the hostname to run the service, default is `localhost`.
+
+This command line will automatically create a temporary directory to save the files and start the Web server. The temporary directory will be deleted after the Web server is closed.
 

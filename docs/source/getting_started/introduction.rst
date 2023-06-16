@@ -41,5 +41,8 @@ Get started with Wis3D!
 
 .. image:: ../_static/introduction/keypoint_correspondences_demo.gif
   :alt: Keypoint Correspondences
-  :width: 55%
-  :align: center
+  :width: 49%
+
+.. image:: ../_static/introduction/mesh_and_camera.gif
+  :alt: Mesh and Cameras
+  :width: 49%

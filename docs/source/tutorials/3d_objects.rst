@@ -99,7 +99,7 @@ The color can be added to each box when using boxes to add voxel.
 
 
 
-Basic Geometry(Line, Box, Sphere)
+Basic Geometry (Line, Box, Sphere)
 ---------------------------------
 
 Wis3D supports adding lines, boxes, and spheres.
@@ -175,7 +175,7 @@ Image can be added by
 
 
 
-Shotcuts
+Shortcuts
 ========
 
 +------------------+-----------------------------+
@@ -190,7 +190,13 @@ Shotcuts
 |``ArrowRight``/   |                             |
 |``ArrowLeft``     |                             |
 +------------------+-----------------------------+
-|``A``/``D``       |Change display scene         |
+|``A``             |Switch to previous scene     |
++------------------+-----------------------------+
+|``D``             |Switch to next scene         |
++------------------+-----------------------------+
+|``Q``             |Switch to the first scene    |
++------------------+-----------------------------+
+|``E``             |Switch to the last scene     |
 +------------------+-----------------------------+
 |``W``/``S``       |Change sequence              |
 +------------------+-----------------------------+

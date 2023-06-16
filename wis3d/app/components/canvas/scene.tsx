@@ -25,7 +25,7 @@ const meshSchema = {
     label: "material",
     hint: "material",
     options: ["MeshBasicMaterial", "MeshStandardMaterial", "MeshNormalMaterial", "MeshPhongMaterial"],
-    value: (JSON.parse(localStorage.getItem("mesh.material")) as string) ?? "MeshBasicMaterial"
+    value: (JSON.parse(localStorage.getItem("mesh.material")) as string) ?? "MeshNormalMaterial"
   },
   vertexColors: {
     label: "vertex colors",
@@ -79,10 +79,10 @@ const MeshSet = memo<{ items?: IObject[]; store?: StoreType }>(function MeshSet(
   );
 });
 
-var currentSizeRange=[0.001, 1.0];
+var currentSizeRange=[0.001, 0.01];
 const pointCloudSchema =() => {
   const config: Schema = {};
-  const sizeRange = JSON.parse(localStorage.getItem("point cloud.pointSizeRange")) ?? [0.001, 1.0];
+  const sizeRange = JSON.parse(localStorage.getItem("point cloud.pointSizeRange")) ?? [0.001, 0.01];
 
   config["vertexColors"] = {
     label: "vertex colors",
@@ -421,7 +421,7 @@ export const Scene = memo<ISceneProps>(function Scene(props) {
       background: {
         label: "background",
         hint: "background",
-        value: JSON.parse(localStorage.getItem("background")) || theme.palette.neutralQuaternary
+        value: JSON.parse(localStorage.getItem("background")) || theme.palette.white
       },
       "back to initial view (B)": button(() => ref.current?.reset())
     },

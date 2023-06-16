@@ -4,6 +4,7 @@ from inspect import getmodule
 
 from types import BuiltinFunctionType, FunctionType
 
+
 class ApiDocWriter(object):
     ''' Class for automatic detection and parsing of API docs
     to Sphinx-parsable reST format'''
@@ -23,10 +24,8 @@ class ApiDocWriter(object):
         self.module_skip_patterns = module_skip_patterns
         self.include_classes = include_classes
 
-
     def get_package_name(self):
         return self._package_name
-
 
     def set_package_name(self, package_name):
         self._package_name = package_name
@@ -40,7 +39,6 @@ class ApiDocWriter(object):
 
     package_name = property(get_package_name, set_package_name, None,
                             'get/set package_name')
-
 
     def uri2path(self, uri):
         ''' Convert uri to absolute filepath'''
@@ -57,7 +55,6 @@ class ApiDocWriter(object):
             return None
         return path
 
-
     def path2uri(self, dirpath):
         ''' Convert directory path to uri '''
         package_dir = self.package_name.replace('.', os.path.sep)
@@ -65,7 +62,6 @@ class ApiDocWriter(object):
         if relpath.startswith(os.path.sep):
             relpath = relpath[1:]
         return relpath.replace(os.path.sep, '.')
-
 
     def parse_module_with_import(self, uri):
         """ Look for functions and classes in an importable module."""
@@ -97,13 +93,11 @@ class ApiDocWriter(object):
                     pass
         return functions, classes
 
-
-    def update_two_dim_dict(self, target_dict, key_a, key_b, val): 
+    def update_two_dim_dict(self, target_dict, key_a, key_b, val):
         if key_a in target_dict:
             target_dict[key_a].update({key_b: val})
         else:
-            target_dict.update({key_a:{key_b: val}})
-
+            target_dict.update({key_a: {key_b: val}})
 
     def get_class_func(self, uri):
         filename = self.uri2path(uri)
@@ -111,14 +105,14 @@ class ApiDocWriter(object):
 
         if filename is None:
             return functions
-        
+
         f = open(filename, 'rt')
         prevline = ''
         docstring = []
         record_flag = -1
         for line in f:
             if record_flag == 0 or record_flag == 1:
-                if line.strip() == "'''":
+                if line.strip() == "'''" or line.strip() == '"""':
                     record_flag += 1
                 else:
                     docstring.append(line)
@@ -142,7 +136,6 @@ class ApiDocWriter(object):
         f.close()
         return functions
 
-
     def generate_func_docstring(self, docstring: str):
         res_string = ''
         param_flag = 0
@@ -156,12 +149,11 @@ class ApiDocWriter(object):
                 params = line.strip().split(':')
                 res_string += '**' + params[1][6:] + '**' + ' -' + ':'.join(params[2:]) + '\n'
             else:
-                if param_flag == 0: 
-                    res_string += '   ' + line.strip() + '\n'  
+                if param_flag == 0:
+                    res_string += '   ' + line.strip() + '\n'
                 else:
-                    res_string += line          
+                    res_string += line
         return res_string
-
 
     def generate_api_doc(self, uri):
         ''' Make autodoc documentation string for a module'''
@@ -181,11 +173,11 @@ class ApiDocWriter(object):
         body += '\n.. currentmodule:: ' + uri + '\n\n'
         for c in classes:
             body += '\n:class:`' + c + '`\n' \
-                  + self.rst_section_levels[0] * \
-                  (len(c)+9) + '\n\n'
-            
+                    + self.rst_section_levels[0] * \
+                    (len(c) + 9) + '\n\n'
+
             body += '.. automethod:: ' + c + '.__init__' + '\n\n'
-            
+
             class_functions = self.get_class_func(uri)
             for type in class_functions:
                 body += type + '\n' + self.rst_section_levels[1] * (len(type)) + '\n\n'
@@ -193,7 +185,7 @@ class ApiDocWriter(object):
                     if class_functions[type][func] == '':
                         body += '.. automethod:: ' + c + '.' + func + '\n\n'
                     else:
-                        body += '.. method:: '  + c + '.' + func + '\n   :noindex: \n\n'
+                        body += '.. method:: ' + c + '.' + func + '\n   :noindex: \n\n'
                         body += self.generate_func_docstring(class_functions[type][func]) + '\n\n'
 
         for f in functions:
@@ -233,7 +225,7 @@ class ApiDocWriter(object):
         for dirpath, dirnames, filenames in os.walk(self.root_path):
             # Check directory names for packages
             root_uri = self.path2uri(os.path.join(self.root_path,
-                                                   dirpath))
+                                                  dirpath))
 
             # Normally, we'd only iterate over dirnames, but since
             # dipy does not import a whole bunch of modules we'll
@@ -291,7 +283,6 @@ class ApiDocWriter(object):
 
         self.written_modules = written_modules
 
-
     def write_api_docs(self, outdir):
         '''Generate API reST files.'''
         if not os.path.exists(outdir):
@@ -301,18 +292,17 @@ class ApiDocWriter(object):
         modules = self.discover_modules()[1:]
         self.write_modules_api(modules, outdir)
 
-
     def write_index(self, outdir, froot='gen', relative_to=None):
         '''Make a reST API index file from written files'''
         print(self.written_modules)
         if self.written_modules is None:
             raise ValueError('No modules written')
         # Get full filename path
-        path = os.path.join(outdir, froot+self.rst_extension)
+        path = os.path.join(outdir, froot + self.rst_extension)
         # Path written into index is relative to rootpath
         if relative_to is not None:
             relpath = (
-                outdir + os.path.sep).replace(relative_to + os.path.sep, '')
+                    outdir + os.path.sep).replace(relative_to + os.path.sep, '')
         else:
             relpath = outdir
         idx = open(path, 'wt')
@@ -326,3 +316,12 @@ class ApiDocWriter(object):
         for f in self.written_modules:
             w('   %s\n' % f)
         idx.close()
+
+
+def main():
+    api_gen = ApiDocWriter("wis3d", ['\\.server$', '\\.version'], include_classes={'wis3d.wis3d': 'Wis3D'})
+    api_gen.get_class_func("wis3d.wis3d")
+
+
+if __name__ == '__main__':
+    main()

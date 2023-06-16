@@ -16,13 +16,10 @@ and download the latest release. Then run
 
 .. code-block:: bash
 
-    pip install /path/to/the/wheel/file
+    pip install wis3d
 
 
-.. todo:: change gitlab link to github
-
-
-Try it
+Verify installation
 ------
 
 Now, try importing Wis3D.
@@ -34,25 +31,24 @@ Now, try importing Wis3D.
 If this works, Wis3D has been successfully installed. Congratulations!
 
 
-.. _running_tutorials:
+.. _running_examples:
 
-Running tutorials
+Running examples
 =================
 
 Wis3D provides a complete set of testing data and a simple tutorial. See ``example`` for more details.
 
-Run python tutorial
+Run python example
 
 .. code-block:: bash
 
-    cd Wis3d
     python example/test.py
 
 Start the web service to get the visualization.
 
 .. code-block:: bash
 
-    wis3d --vis_dir `pwd`/example/visual --host 0.0.0.0 --port 19090
+    wis3d --vis_dir example/visual --host 0.0.0.0 --port 19090
 
 Open your browser, and enter http://localhost:19090 to see the results.
 

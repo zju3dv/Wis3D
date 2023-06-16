@@ -1,7 +1,14 @@
 # coding=utf-8
+"""
+Some tips for this file:
+class method definition must be in a single line for correct doc generation.
+"""
 import os
 import json
 import base64
+import shutil
+import warnings
+
 import trimesh
 import numpy as np
 from PIL import Image
@@ -11,7 +18,9 @@ from scipy.spatial.transform import Rotation
 from shutil import copyfile
 import torch
 from transforms3d import affines, euler
+from termcolor import colored
 
+from wis3d.utils import random_choice
 
 file_exts = dict(
     point_cloud="ply",
@@ -62,16 +71,24 @@ def tensor2ndarray(tensor: Union[np.ndarray, torch.Tensor]) -> np.ndarray:
 
 
 class Wis3D:
+    has_removed = []
+    default_xyz_pattern = ('x', 'y', 'z')
+    sequence_ids = {}
+
     def __init__(
-        self, out_folder: str, sequence_name: str, xyz_pattern=("x", "y", "z")
+            self,
+            out_folder: str,
+            sequence_name: str,
+            xyz_pattern=None,
+            auto_increase=True,
+            auto_remove=True,
+            enable: bool = True
     ):
         """
         Initialize Wis3D
 
         :param out_folder: the folder to store the output files
-
         :param sequence_name: a subfolder of `out_folder` holding files of the sequence
-
         :param xyz_pattern: mapping of the three.js coordinate to the target coordinate. Take KITTI coordinate as an example:
         ::
 
@@ -90,14 +107,42 @@ class Wis3D:
                                |     |     |
                   KITTI:       x    -y    -z
 
+        :param auto_increase: In one experiment run, whether to increase the scene id automatically for the same sequence name
+        :param auto_remove: On program launch, whether to remove the output folder if it exists
+        :param enable: Whether to enable Wis3D. Since Wis3D is time-consuming, this flag is useful when you want to keep the Wis3D code unchanged and enable/disable it for debugging and running.
         """
-        self.scene_id = 0
-        self.out_folder = out_folder
-        self.sequence_name = sequence_name
-        self.three_to_world = self.__get_world_transform(xyz_pattern)
-        self.counters = {}
-        for key in folder_names:
-            self.counters[key] = 0
+        assert enable in [True, False]
+        self.enable = enable
+        if enable is True:
+            self.scene_id = 0
+            if not os.path.isabs(out_folder):
+                seq_out_folder = os.path.join(
+                    os.getcwd(), out_folder, sequence_name)
+            else:
+                seq_out_folder = out_folder
+            if os.path.exists(seq_out_folder) and seq_out_folder not in Wis3D.has_removed and auto_remove:
+                shutil.rmtree(seq_out_folder)
+                Wis3D.has_removed.append(seq_out_folder)
+            self.out_folder = out_folder
+            self.sequence_name = sequence_name
+            if xyz_pattern is None:
+                xyz_pattern = Wis3D.default_xyz_pattern
+            self.three_to_world = self.__get_world_transform(xyz_pattern)
+            self.counters = {}
+            for key in folder_names:
+                self.counters[key] = 0
+
+            if seq_out_folder not in Wis3D.sequence_ids:
+                Wis3D.sequence_ids[seq_out_folder] = 0
+            else:
+                Wis3D.sequence_ids[seq_out_folder] += 1
+            self.auto_increase = auto_increase
+            if auto_increase:
+                scene_id = Wis3D.sequence_ids[seq_out_folder]
+            else:
+                scene_id = 0
+            print(colored(f'Set up Wis3D for {sequence_name}: {scene_id}', 'magenta'))
+            self.set_scene_id(scene_id)
 
     def __get_world_transform(self, xyz_pattern=("x", "y", "z")) -> np.ndarray:
         rots = {
@@ -137,29 +182,26 @@ class Wis3D:
 
         :param scene_id: scene ID to be set
         """
+        if not self.enable:
+            return
         self.scene_id = scene_id
 
     @overload
     def add_point_cloud(self, path: str, *, name: str = None) -> None:
         """
         Add a point cloud by file path.
-
         Support importing point clouds from STL, OBJ, PLY, etc.
 
         :param path: path to the point cloud file
 
         :param name: output name of the point cloud
+
         """
+
         pass
 
     @overload
-    def add_point_cloud(
-        self,
-        vertices: Union[np.ndarray, torch.Tensor],
-        colors: Union[np.ndarray, torch.Tensor] = None,
-        *,
-        name: str = None
-    ) -> None:
+    def add_point_cloud(self, vertices: Union[np.ndarray, torch.Tensor], colors: Union[np.ndarray, torch.Tensor] = None, *, name: str = None) -> None:
         """
         Add a point cloud by point cloud definition.
 
@@ -167,7 +209,7 @@ class Wis3D:
 
         :param colors: colors of the points, shape: `(n, 3)`
 
-        :param name: output name of the poitn cloud
+        :param name: output name of the point cloud
         """
         pass
 
@@ -178,11 +220,25 @@ class Wis3D:
 
         :param pcd: point cloud loaded by `trimesh`
 
-        :param name: output name of the poitn cloud
+        :param name: output name of the point cloud
         """
         pass
 
     def add_point_cloud(self, vertices, colors=None, *, name=None) -> None:
+        """
+        Add a point cloud.
+
+        :param vertices:
+
+        :param colors:
+
+        :param name:
+
+        :return:
+
+        """
+        if not self.enable:
+            return
         if isinstance(vertices, str):
             pcd = trimesh.load_mesh(vertices)
         elif isinstance(vertices, trimesh.PointCloud):
@@ -193,7 +249,6 @@ class Wis3D:
             pcd = trimesh.PointCloud(vertices, colors)
         else:
             raise NotImplementedError()
-
         pcd.apply_transform(self.three_to_world)
         filename = self.__get_export_file_name("point_cloud", name)
         pcd.export(filename)
@@ -213,12 +268,12 @@ class Wis3D:
 
     @overload
     def add_mesh(
-        self,
-        vertices: Union[np.ndarray, torch.Tensor],
-        faces: Union[np.ndarray, torch.Tensor],
-        vertex_colors: Union[np.ndarray, torch.Tensor],
-        *,
-        name: str = None
+            self,
+            vertices: Union[np.ndarray, torch.Tensor],
+            faces: Union[np.ndarray, torch.Tensor],
+            vertex_colors: Union[np.ndarray, torch.Tensor],
+            *,
+            name: str = None
     ) -> None:
         """
         Add a mesh loaded by mesh definition
@@ -245,6 +300,16 @@ class Wis3D:
         pass
 
     def add_mesh(self, vertices, faces=None, vertex_colors=None, *, name=None):
+        """
+        Add a mesh.
+
+        :param vertices:
+        :param faces:
+        :param vertex_colors:
+        :param name:
+        :return:
+        """
+        if not self.enable: return
         if isinstance(vertices, str):
             mesh = trimesh.load_mesh(vertices)
         elif isinstance(vertices, trimesh.Trimesh):
@@ -273,9 +338,7 @@ class Wis3D:
         pass
 
     @overload
-    def add_image(
-        self, data: Union[np.ndarray, torch.Tensor], *, name: str = None
-    ) -> None:
+    def add_image(self, data: Union[np.ndarray, torch.Tensor], *, name: str = None) -> None:
         """
         Add an image by image definition
 
@@ -290,13 +353,21 @@ class Wis3D:
         """
         Add an image by `PIL.Image.Image`
 
-        :param image: image loaded by `PIL.Image.Image`
+        :param image: image loaded by `PIL.Image.open`
 
         :param name: output name of the image
         """
         pass
 
     def add_image(self, image, *, name: str = None):
+        """
+        Add an image.
+
+        :param image:
+        :param name:
+        :return:
+        """
+        if not self.enable: return
         if isinstance(image, str):
             img = Image.open(image)
         elif isinstance(image, (np.ndarray, torch.Tensor)):
@@ -311,18 +382,11 @@ class Wis3D:
         img.save(filename)
 
     @overload
-    def add_boxes(
-        self,
-        corners: Union[np.ndarray, torch.Tensor],
-        *,
-        order: Iterable[int] = (0, 1, 2, 3, 4, 5, 6, 7),
-        labels: Iterable[str] = None,
-        name: str = None
-    ) -> None:
+    def add_boxes(self, corners: Union[np.ndarray, torch.Tensor], *, order: Iterable[int] = (0, 1, 2, 3, 4, 5, 6, 7), labels: Iterable[str] = None, name: str = None) -> None:
         """
         Add boxes by corners
 
-        :param corners: eight corners of the boxese, shape: `(n, 8, 3)` or `(8, 3)`
+        :param corners: eight corners of the boxes, shape: `(n, 8, 3)` or `(8, 3)`
 
         :param order: order of the corners, the default indices are defined as
 
@@ -342,15 +406,7 @@ class Wis3D:
         pass
 
     @overload
-    def add_boxes(
-        self,
-        positions: Union[np.ndarray, torch.Tensor],
-        eulers: Union[np.ndarray, torch.Tensor],
-        extents: Union[np.ndarray, torch.Tensor],
-        *,
-        labels: Iterable[str] = None,
-        name: str = None
-    ) -> None:
+    def add_boxes(self, positions: Union[np.ndarray, torch.Tensor], eulers: Union[np.ndarray, torch.Tensor], extents: Union[np.ndarray, torch.Tensor], *, labels: Iterable[str] = None, name: str = None) -> None:
         """
         Add boxes by definition
 
@@ -366,16 +422,20 @@ class Wis3D:
         """
         pass
 
-    def add_boxes(
-        self,
-        positions,
-        eulers=None,
-        extents=None,
-        *,
-        order=(0, 1, 2, 3, 4, 5, 6, 7),
-        labels=None,
-        name=None
-    ):
+    def add_boxes(self, positions, eulers=None, extents=None, *, axes=None, order=(0, 1, 2, 3, 4, 5, 6, 7), labels=None, name=None):
+        """
+        Add boxes.
+
+        :param positions:
+        :param eulers:
+        :param extents:
+        :param axes:
+        :param order:
+        :param labels:
+        :param name:
+        :return:
+        """
+        if not self.enable: return
         positions = tensor2ndarray(positions)
 
         if eulers is None or extents is None:
@@ -410,12 +470,14 @@ class Wis3D:
             eulers = np.asarray(eulers).reshape(-1, 3)
 
         boxes = []
+        if axes is None:
+            warnings.warn("Axes is not specified, use default axes rxyz. To preserve old behavior, use axes='sxyz'")
         for i in range(len(positions)):
             box_def = self.three_to_world @ affines.compose(
-                positions[i], euler.euler2mat(*eulers[i]), extents[i]
+                positions[i], euler.euler2mat(*eulers[i], axes), extents[i]
             )
             T, R, Z, _ = affines.decompose(box_def)
-            box = dict(position=T.tolist(), euler=euler.mat2euler(R), extent=Z.tolist())
+            box = dict(position=T.tolist(), euler=euler.mat2euler(R, axes), extent=Z.tolist())
             if labels is not None:
                 if isinstance(labels, str):
                     labels = [labels]
@@ -427,14 +489,8 @@ class Wis3D:
         with open(filename, "w") as f:
             f.write(json.dumps(boxes))
 
-    def add_lines(
-        self,
-        start_points: Union[np.ndarray, torch.Tensor],
-        end_points: Union[np.ndarray, torch.Tensor],
-        colors: Union[np.ndarray, torch.Tensor] = None,
-        *,
-        name: str = None
-    ) -> None:
+    def add_lines(self, start_points: Union[np.ndarray, torch.Tensor], end_points: Union[np.ndarray, torch.Tensor], colors: Union[np.ndarray, torch.Tensor] = None, *, name: str = None
+                  ) -> None:
         """
         Add lines by points
 
@@ -446,6 +502,7 @@ class Wis3D:
 
         :param name: output name for these lines
         """
+        if not self.enable: return
         start_points = tensor2ndarray(start_points)
         end_points = tensor2ndarray(end_points)
         colors = tensor2ndarray(colors)
@@ -458,7 +515,7 @@ class Wis3D:
 
         n = start_points.shape[0]
         start_points = (
-            self.three_to_world @ np.hstack((start_points, np.zeros((n, 1)))).T
+                self.three_to_world @ np.hstack((start_points, np.zeros((n, 1)))).T
         )
         end_points = self.three_to_world @ np.hstack((end_points, np.zeros((n, 1)))).T
 
@@ -496,14 +553,7 @@ class Wis3D:
         pass
 
     @overload
-    def add_voxel(
-        self,
-        voxel_centers: Union[np.ndarray, torch.Tensor],
-        voxel_size: float,
-        colors: Union[np.ndarray, torch.Tensor] = None,
-        *,
-        name: str = None
-    ) -> None:
+    def add_voxel(self, voxel_centers: Union[np.ndarray, torch.Tensor], voxel_size: float, colors: Union[np.ndarray, torch.Tensor] = None, *, name: str = None) -> None:
         """
         Add voxels by boxes
 
@@ -518,6 +568,7 @@ class Wis3D:
         pass
 
     def add_voxel(self, voxel_centers, voxel_size=None, colors=None, *, name=None):
+        if not self.enable: return
         if isinstance(voxel_centers, str):
             file_type = voxel_centers.split(".")[-1]
             if file_type == "binvox":
@@ -538,7 +589,7 @@ class Wis3D:
 
             n = voxel_centers.shape[0]
             voxel_centers = (
-                self.three_to_world @ np.hstack((voxel_centers, np.zeros((n, 1)))).T
+                    self.three_to_world @ np.hstack((voxel_centers, np.zeros((n, 1)))).T
             )
             voxel_centers = voxel_centers[:3, :].T
 
@@ -562,12 +613,12 @@ class Wis3D:
                 f.write(json.dumps(data))
 
     def add_spheres(
-        self,
-        centers: Union[np.ndarray, torch.Tensor],
-        radius: Union[float, np.ndarray, torch.Tensor],
-        colors=None,
-        *,
-        name=None
+            self,
+            centers: Union[np.ndarray, torch.Tensor],
+            radius: Union[float, np.ndarray, torch.Tensor],
+            colors=None,
+            *,
+            name=None
     ) -> None:
         """
         Add spheres
@@ -580,6 +631,7 @@ class Wis3D:
 
         :param name: output name for the spheres
         """
+        if not self.enable: return
         centers = tensor2ndarray(centers)
         centers = np.asarray(centers).reshape(-1, 3)
         n = centers.shape[0]
@@ -615,7 +667,8 @@ class Wis3D:
             f.write(json.dumps(spheres))
 
     def add_camera_trajectory(
-        self, poses: Union[np.ndarray, torch.Tensor], *, name: str = None
+            self, poses: Union[np.ndarray, torch.Tensor], is_opencv=None,
+            *, name: str = None
     ) -> None:
         """
         Add a camera trajectory
@@ -624,15 +677,26 @@ class Wis3D:
 
         :param name: output name of the camera trajectory
         """
+        if not self.enable: return
         poses = tensor2ndarray(poses)
+        if poses.ndim == 2:
+            raise ValueError("poses should be of shape (n, 4, 4). To add a single pose, use add_camera_pose.")
 
         poses = (self.three_to_world @ poses.T).T
-        # r = Rotation.from_matrix(poses[:, :3, : 3])
-        # eulers = r.as_euler('xyz')
+
+        if is_opencv is None:
+            warnings.warn(
+                "is_opencv is not specified, assuming True. To preserve old behavior, specify is_opencv=False.")
+            is_opencv = True
+        if is_opencv:
+            poses[:, :, [1, 2]] *= -1
+            axes = "rxyz"
+        else:
+            axes = 'sxyz'
         quats = []
         positions = poses[:, :3, 3].reshape((-1, 3))
         for pose in poses:
-            trans_quat = euler.mat2euler(pose[:3, :3])
+            trans_quat = euler.mat2euler(pose[:3, :3], axes=axes)
             quats.append(trans_quat)
 
         filename = self.__get_export_file_name("camera_trajectory", name)
@@ -640,18 +704,18 @@ class Wis3D:
             f.write(json.dumps(dict(eulers=quats, positions=positions.tolist())))
 
     def add_keypoint_correspondences(
-        self,
-        img0: Union[Image.Image, np.ndarray, torch.Tensor, str],
-        img1: Union[Image.Image, np.ndarray, torch.Tensor, str],
-        kpts0: Union[np.ndarray, torch.Tensor],
-        kpts1: Union[np.ndarray, torch.Tensor],
-        *,
-        unmatched_kpts0: Union[np.ndarray, torch.Tensor] = None,
-        unmatched_kpts1: Union[np.ndarray, torch.Tensor] = None,
-        metrics: Dict[str, Iterable[int]] = None,
-        booleans: Dict[str, Iterable[bool]] = None,
-        meta: Dict[str, Any] = None,
-        name: str = None
+            self,
+            img0: Union[Image.Image, np.ndarray, torch.Tensor, str],
+            img1: Union[Image.Image, np.ndarray, torch.Tensor, str],
+            kpts0: Union[np.ndarray, torch.Tensor],
+            kpts1: Union[np.ndarray, torch.Tensor],
+            *,
+            unmatched_kpts0: Union[np.ndarray, torch.Tensor] = None,
+            unmatched_kpts1: Union[np.ndarray, torch.Tensor] = None,
+            metrics: Dict[str, Iterable[int]] = None,
+            booleans: Dict[str, Iterable[bool]] = None,
+            meta: Dict[str, Any] = None,
+            name: str = None
     ) -> None:
         """
         Add keypoint correspondences
@@ -676,7 +740,7 @@ class Wis3D:
 
         :param name: outputname of the file
         """
-
+        if not self.enable: return
         if isinstance(img0, str):
             image0 = Image.open(img0)
         elif isinstance(img0, np.ndarray):
@@ -729,3 +793,85 @@ class Wis3D:
         filename = self.__get_export_file_name("correspondences", name)
         with open(filename, "w") as f:
             f.write(json.dumps(data))
+
+    def __repr__(self):
+        if not self.enable:
+            return f'Wis3D:NA'
+        else:
+            return f'Wis3D:{self.sequence_name}:{self.scene_id}'
+
+    def increase_scene_id(self):
+        if not self.enable:
+            return
+        self.set_scene_id(self.scene_id + 1)
+
+    def add_box_by_6border(self, xmin, ymin, zmin, xmax, ymax, zmax, name=None):
+        """
+        Add a box by 6 borders
+
+        :param xmin: float
+        :param ymin: float
+        :param zmin: float
+        :param xmax: float
+        :param ymax: float
+        :param zmax: float
+        :param name: float
+        :return:
+        """
+        if not self.enable:
+            return
+        x = (xmin + xmax) / 2
+        y = (ymin + ymax) / 2
+        z = (zmin + zmax) / 2
+        sx = xmax - xmin
+        sy = ymax - ymin
+        sz = zmax - zmin
+        self.add_boxes(np.array([x, y, z]), np.array(
+            [0, 0, 0]), np.array([sx, sy, sz]), name=name)
+
+    def add_camera_pose(self, pose: Union[np.ndarray, torch.Tensor], *, name: str = None) -> None:
+        """
+        Add a camera pose
+
+        :param pose: transformation matrices of shape `(4, 4)`. Definition:
+
+        ::
+
+                pt_world=matmul(pose,pt_camera)
+
+        :param name: output name of the camera pose
+        """
+        if not self.enable:
+            return
+        self.add_camera_trajectory(pose[None], is_opencv=True, name=name)
+
+    def add_rays(self, rays_o, rays_d, max=10.0, min=0.0, sample=1.0, name=None):
+        """
+        add rays to the scene, useful for debugging NeRF
+
+        :param rays_o: (np.ndarray or torch.Tensor): [n, 3]
+
+        :param rays_d: (np.ndarray or torch.Tensor): [n,3]
+        :param max: (float, optional): Maximum norm of the ray. Defaults to 10.
+        :param min: (float, optional): Minimum norm of the ray. Defaults to 0.
+        :param sample: (float, optional): Sample ratio of the rays. Defaults to 1.0.
+            If sample < 1.0, ratio of the rays will be sampled.
+            If sample > 1.0, number of the rays will be sampled.
+        :param name: (str, optional): Name of the rays. Defaults to None.
+        """
+        if not self.enable:
+            return
+        rays_o = rays_o.reshape(-1, 3)
+        rays_d = rays_d.reshape(-1, 3)
+        if sample < 1.0:
+            size = int(sample * rays_d.shape[0])
+            _, idx = random_choice(rays_o, size, dim=0)
+            rays_o = rays_o[idx]
+            rays_d = rays_d[idx]
+        elif sample > 1.0:
+            size = int(sample)
+            _, idx = random_choice(rays_o, size, dim=0)
+            rays_o = rays_o[idx]
+            rays_d = rays_d[idx]
+
+        self.add_lines(rays_o + rays_d * min, rays_o + rays_d * max, name=name)
