@@ -1,5 +1,4 @@
 # coding=utf-8
-import torch
 from setuptools import setup, find_packages
 from os import path
 
@@ -15,10 +14,10 @@ with open(path.join(basedir, 'README.md'), encoding='utf-8') as f:
 setup(
     name='wis3d',
     version=__version__,
-    author='Jingmeng Zhang, Hongcheng Zhao, Zijing Huang, Jiaming Sun, Linghao Chen',
+    author='Linghao Chen, Jingmeng Zhang, Hongcheng Zhao, Zijing Huang, Linghao Chen, Jiaming Sun',
     project_urls={
         'Homepage': 'https://wis3d.readthedocs.io/en/latest/',
-        'Online Demo': 'http://wis3d.idr.ai/',
+        # 'Online Demo': 'http://wis3d.idr.ai/',
         'Source Code': 'https://github.com/zju3dv/wis3d.git',
     },
     description='A web-based 3D visualization tool for 3D computer vision.',

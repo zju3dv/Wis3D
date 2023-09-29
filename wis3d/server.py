@@ -53,21 +53,23 @@ class Visualizer:
 def find_free_port(start: int, host: str = "0.0.0.0") -> int:
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         port = start
-        while True:
+        while port < 65535:
             try:
-                s.bind(("0.0.0.0", port))
-                return port
+                s.bind((host, port))
+                break
             except:
                 port += 1
+                print("Port {} is in use, trying {}".format(port - 1, port))
+    return port
 
 
 def run_server(
-    vis_dir: str, host: str = "0.0.0.0", port: int = None, verbose: bool = False
+        vis_dir: str, host: str = "0.0.0.0", port: int = None, verbose: bool = False
 ):
     static_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "app", "out")
 
     start_port = 19090 if port is None else port
-    port = find_free_port(start_port)
+    port = find_free_port(start_port, host)
 
     conf = {
         "/": {
@@ -94,6 +96,10 @@ def run_server(
 
     cherrypy.tree.mount(visualizer, "", conf)
     cherrypy.engine.signals.subscribe()
+    # try:
     cherrypy.engine.start()
     print(f"Serving on http://{host}:{port}")
     cherrypy.engine.block()
+    # except KeyboardInterrupt:
+    cherrypy.engine.stop()
+    cherrypy.engine.exit()

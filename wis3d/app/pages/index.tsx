@@ -44,8 +44,29 @@ const Home = memo(function Home() {
     const framesUrl = seqName && `${base}/all_scenes_in_sequence?sequence=${encodeURIComponent(seqName)}`;
     const frames = useXHR(framesUrl, "GET", "json", [], (ev) => {
         const length = (ev.currentTarget as XMLHttpRequest).response?.length;
-        if (length && frameIndex >= length) {
+        if (!length) {
+            // console.log("no frames in this sequence")
+            setFrameIndex(0);
+            localStorage.setItem('myFrameIndex', "0");
+        } else if (frameIndex >= length) {
+            // console.log("frameIndex >= length", frameIndex, length);
             setFrameIndex(length - 1);
+            localStorage.setItem('myFrameIndex', (length - 1).toString());
+        } else {
+            // console.log("else");
+            let myFrameIndex = parseInt(localStorage.getItem("myFrameIndex"), 10);
+            if (!isNaN(myFrameIndex)) {
+                // console.log("myFrameIndex", myFrameIndex);
+                if (myFrameIndex >= length) {
+                    myFrameIndex = length - 1;
+                    localStorage.setItem('myFrameIndex', (length - 1).toString());
+                }
+                setFrameIndex(myFrameIndex);
+            } else {
+                // console.log("else else");
+                setFrameIndex(frameIndex);
+                localStorage.setItem('myFrameIndex', frameIndex.toString());
+            }
         }
     });
     useXHR(
@@ -103,7 +124,12 @@ const Home = memo(function Home() {
         },
         [sequence]
     );
-    const nextFrame = useCallback(() => setFrameIndex((val) => val + 1), []);
+    const nextFrame = useCallback(() => {
+        setFrameIndex(function (val) {
+            localStorage.setItem('myFrameIndex', (val + 1).toString());
+            return val + 1;
+        });
+    }, []);
 
     const onSeqChange = useCallback(
         (option) => {
@@ -122,7 +148,10 @@ const Home = memo(function Home() {
         "d",
         () => {
             setFrameIndex((val) => {
-                if (val < frames.length - 1) return val + 1;
+                if (val < frames.length - 1) {
+                    localStorage.setItem('myFrameIndex', (val + 1).toString());
+                    return val + 1;
+                }
                 return val;
             });
         },
@@ -133,7 +162,10 @@ const Home = memo(function Home() {
         "a",
         () => {
             setFrameIndex((val) => {
-                if (val > 0) return val - 1;
+                if (val > 0) {
+                    localStorage.setItem('myFrameIndex', (val - 1).toString());
+                    return val - 1;
+                }
                 return val;
             });
         },
@@ -177,12 +209,13 @@ const Home = memo(function Home() {
     useHotkeys(
         "r",
         () => {
-            setFrameIndex((val) => {
-                return (val - 1 + frames.length) % frames.length;
-            });
-            setFrameIndex((val) => {
-                return (val + 1) % frames.length;
-            });
+            window.location.reload();
+            // setFrameIndex((val) => {
+            //     return (val - 1 + frames.length) % frames.length;
+            // });
+            // setFrameIndex((val) => {
+            //     return (val + 1) % frames.length;
+            // });
         },
         [frames]
     );
@@ -190,6 +223,7 @@ const Home = memo(function Home() {
         "q",
         () => {
             setFrameIndex((val) => {
+                localStorage.setItem('myFrameIndex', "0");
                 return 0;
             });
         },
@@ -199,6 +233,7 @@ const Home = memo(function Home() {
         "e",
         () => {
             setFrameIndex((val) => {
+                localStorage.setItem('myFrameIndex', (frames.length - 1).toString());
                 return frames.length - 1;
             });
         },

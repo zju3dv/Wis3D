@@ -4,6 +4,7 @@ Some tips for this file:
 class method definition must be in a single line for correct doc generation.
 """
 import os
+import os.path as osp
 import json
 import base64
 import shutil
@@ -75,24 +76,16 @@ class Wis3D:
     default_xyz_pattern = ('x', 'y', 'z')
     sequence_ids = {}
 
-    def __init__(
-            self,
-            out_folder: str,
-            sequence_name: str,
-            xyz_pattern=None,
-            auto_increase=True,
-            auto_remove=True,
-            enable: bool = True
-    ):
+    def __init__(self, out_folder: str, sequence_name: str, xyz_pattern=None, auto_increase=True, auto_remove=True, enable: bool = True):
         """
         Initialize Wis3D
 
-        :param out_folder: the folder to store the output files
-        :param sequence_name: a subfolder of `out_folder` holding files of the sequence
-        :param xyz_pattern: mapping of the three.js coordinate to the target coordinate. Take KITTI coordinate as an example:
+        :param out_folder: the folder to store the output files.
+        :param sequence_name: a subfolder of `out_folder` holding files of the sequence.
+        :param xyz_pattern: mapping of the three.js coordinate to the target coordinate. Take opencv camera coordinate as an example:
         ::
 
-                   three.js:                               KITTI:
+                   three.js:                               opencv:
 
             (up: y, right: x, backward:z)         (down: y, right: x, forward:z)
                     y                                     z
@@ -105,24 +98,29 @@ class Wis3D:
                                |     |     |
                xyz_pattern = ['x', '-y', '-z']
                                |     |     |
-                  KITTI:       x    -y    -z
+                  opencv:       x    -y    -z
 
-        :param auto_increase: In one experiment run, whether to increase the scene id automatically for the same sequence name
-        :param auto_remove: On program launch, whether to remove the output folder if it exists
-        :param enable: Whether to enable Wis3D. Since Wis3D is time-consuming, this flag is useful when you want to keep the Wis3D code unchanged and enable/disable it for debugging and running.
+        :param auto_increase: In one program run, whether to increase the scene id automatically for Wis3D instances with the same sequence names.
+        :param auto_remove: On program launch, whether to automatically remove the output folder if it exists.
+        :param enable: Whether to enable Wis3D. Since Wis3D can be time-consuming, this flag is useful for you to keep the Wis3D code unchanged and enable/disable it at debug time/running time.
         """
         assert enable in [True, False]
         self.enable = enable
         if enable is True:
+            assert out_folder != "", "out_folder cannot be empty"
+            assert sequence_name != "", "sequence_name cannot be empty"
             self.scene_id = 0
             if not os.path.isabs(out_folder):
                 seq_out_folder = os.path.join(
                     os.getcwd(), out_folder, sequence_name)
             else:
                 seq_out_folder = out_folder
-            if os.path.exists(seq_out_folder) and seq_out_folder not in Wis3D.has_removed and auto_remove:
-                shutil.rmtree(seq_out_folder)
-                Wis3D.has_removed.append(seq_out_folder)
+            if auto_remove:
+                if not osp.exists(seq_out_folder):
+                    Wis3D.has_removed.append(seq_out_folder)
+                elif os.path.exists(seq_out_folder) and seq_out_folder not in Wis3D.has_removed:
+                    shutil.rmtree(seq_out_folder)
+                    Wis3D.has_removed.append(seq_out_folder)
             self.out_folder = out_folder
             self.sequence_name = sequence_name
             if xyz_pattern is None:
@@ -267,14 +265,7 @@ class Wis3D:
         pass
 
     @overload
-    def add_mesh(
-            self,
-            vertices: Union[np.ndarray, torch.Tensor],
-            faces: Union[np.ndarray, torch.Tensor],
-            vertex_colors: Union[np.ndarray, torch.Tensor],
-            *,
-            name: str = None
-    ) -> None:
+    def add_mesh(self, vertices: Union[np.ndarray, torch.Tensor], faces: Union[np.ndarray, torch.Tensor], vertex_colors: Union[np.ndarray, torch.Tensor], *, name: str = None) -> None:
         """
         Add a mesh loaded by mesh definition
 
@@ -472,6 +463,7 @@ class Wis3D:
         boxes = []
         if axes is None:
             warnings.warn("Axes is not specified, use default axes rxyz. To preserve old behavior, use axes='sxyz'")
+            axes = "rxyz"
         for i in range(len(positions)):
             box_def = self.three_to_world @ affines.compose(
                 positions[i], euler.euler2mat(*eulers[i], axes), extents[i]
@@ -489,8 +481,7 @@ class Wis3D:
         with open(filename, "w") as f:
             f.write(json.dumps(boxes))
 
-    def add_lines(self, start_points: Union[np.ndarray, torch.Tensor], end_points: Union[np.ndarray, torch.Tensor], colors: Union[np.ndarray, torch.Tensor] = None, *, name: str = None
-                  ) -> None:
+    def add_lines(self, start_points: Union[np.ndarray, torch.Tensor], end_points: Union[np.ndarray, torch.Tensor], colors: Union[np.ndarray, torch.Tensor] = None, *, name: str = None) -> None:
         """
         Add lines by points
 
@@ -612,21 +603,14 @@ class Wis3D:
             with open(filename, "w") as f:
                 f.write(json.dumps(data))
 
-    def add_spheres(
-            self,
-            centers: Union[np.ndarray, torch.Tensor],
-            radius: Union[float, np.ndarray, torch.Tensor],
-            colors=None,
-            *,
-            name=None
-    ) -> None:
+    def add_spheres(self, centers: Union[np.ndarray, torch.Tensor], radius: Union[float, np.ndarray, torch.Tensor], colors=None, scales: Union[np.ndarray, torch.Tensor] = [1, 1, 1], quaternions: Union[np.ndarray, torch.Tensor] = [0, 0, 0, 1], *, name=None) -> None:
         """
         Add spheres
 
         :param centers: center of each sphere, shape: `(n, 3)` or `(3,)`
-
         :param radius: radius of each sphere, either float or shape of `(n,)` or `(1,)`
-
+        :param scales: scales of each sphere, shape: `(n, 3)`, defaults to [1,1,1], useful for ellipsoids
+        :param quaternions: rotations of each sphere, format wxyz, shape: `(n, 4)`, defaults to [1,0,0,0], useful for ellipsoids
         :param colors: colors of each box, shape: `(n, 3)`
 
         :param name: output name for the spheres
@@ -638,6 +622,15 @@ class Wis3D:
         centers = self.three_to_world @ np.hstack((centers, np.zeros((n, 1)))).T
         centers = centers[:3, :].T
 
+        scales = tensor2ndarray(scales)
+        scales = np.asarray(scales).reshape(-1, 3)
+        assert len(scales) == len(centers)
+
+        quaternions = tensor2ndarray(quaternions)
+        quaternions = np.asarray(quaternions).reshape(-1, 4)
+        quaternions = quaternions[:, [1, 2, 3, 0]]  # wxyz -> xyzw
+        assert len(quaternions) == len(centers)
+
         if colors is not None:
             colors = tensor2ndarray(colors)
             colors = np.asarray(colors).reshape(-1, 3)
@@ -647,7 +640,7 @@ class Wis3D:
         spheres = []
         if isinstance(radius, float):
             for i in range(len(centers)):
-                sphere = dict(center=centers[i].tolist(), radius=radius)
+                sphere = dict(center=centers[i].tolist(), radius=radius, scales=scales[i].tolist(), quaternion=quaternions[i].tolist())
                 if colors is not None:
                     sphere.update({"color": colors[i].tolist()})
                 spheres.append(sphere)
@@ -657,7 +650,7 @@ class Wis3D:
             if len(radius) != len(centers):
                 raise NotImplementedError()
             for i in range(len(centers)):
-                sphere = dict(center=centers[i].tolist(), radius=radius[i].tolist())
+                sphere = dict(center=centers[i].tolist(), radius=radius[i].tolist(), scales=scales[i].tolist(), quaternion=quaternions[i].tolist())
                 if colors is not None:
                     sphere.update({"color": colors[i].tolist()})
                 spheres.append(sphere)
@@ -666,10 +659,7 @@ class Wis3D:
         with open(filename, "w") as f:
             f.write(json.dumps(spheres))
 
-    def add_camera_trajectory(
-            self, poses: Union[np.ndarray, torch.Tensor], is_opencv=None,
-            *, name: str = None
-    ) -> None:
+    def add_camera_trajectory(self, poses: Union[np.ndarray, torch.Tensor], is_opencv=None, *, name: str = None) -> None:
         """
         Add a camera trajectory
 
@@ -703,20 +693,7 @@ class Wis3D:
         with open(filename, "w") as f:
             f.write(json.dumps(dict(eulers=quats, positions=positions.tolist())))
 
-    def add_keypoint_correspondences(
-            self,
-            img0: Union[Image.Image, np.ndarray, torch.Tensor, str],
-            img1: Union[Image.Image, np.ndarray, torch.Tensor, str],
-            kpts0: Union[np.ndarray, torch.Tensor],
-            kpts1: Union[np.ndarray, torch.Tensor],
-            *,
-            unmatched_kpts0: Union[np.ndarray, torch.Tensor] = None,
-            unmatched_kpts1: Union[np.ndarray, torch.Tensor] = None,
-            metrics: Dict[str, Iterable[int]] = None,
-            booleans: Dict[str, Iterable[bool]] = None,
-            meta: Dict[str, Any] = None,
-            name: str = None
-    ) -> None:
+    def add_keypoint_correspondences(self, img0, img1, kpts0: Union[np.ndarray, torch.Tensor], kpts1, *, unmatched_kpts0=None, unmatched_kpts1=None, metrics: Dict[str, Iterable[int]] = None, booleans: Dict[str, Iterable[bool]] = None, meta: Dict[str, Any] = None, name: str = None) -> None:
         """
         Add keypoint correspondences
 
@@ -801,6 +778,10 @@ class Wis3D:
             return f'Wis3D:{self.sequence_name}:{self.scene_id}'
 
     def increase_scene_id(self):
+        """
+        Increase scene ID by 1
+        :return:
+        """
         if not self.enable:
             return
         self.set_scene_id(self.scene_id + 1)
@@ -831,7 +812,7 @@ class Wis3D:
 
     def add_camera_pose(self, pose: Union[np.ndarray, torch.Tensor], *, name: str = None) -> None:
         """
-        Add a camera pose
+        Add a camera pose (w2c)
 
         :param pose: transformation matrices of shape `(4, 4)`. Definition:
 

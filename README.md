@@ -6,6 +6,7 @@ Wis3D is a web-based 3D visualization tool built for 3D computer vision research
   <img src="https://github.com/zju3dv/Wis3D/blob/main/docs/source/_static/introduction/3d_scene_demo.gif?raw=true" width="44%" />
   <img src="https://github.com/zju3dv/Wis3D/blob/main/docs/source/_static/introduction/human_demo.gif?raw=true" width="44%" />
   <img src="https://github.com/zju3dv/Wis3D/blob/main/docs/source/_static/introduction/keypoint_correspondences_demo.gif?raw=true" width="45%" />
+  <img src="https://github.com/zju3dv/Wis3D/blob/db7105d60b286e3e0d3896df1045e06a153b2c65/docs/source/_static/introduction/mesh_and_camera.gif?raw=true" width="45%" />
 </p>
 
 ## Basic Installation
@@ -106,7 +107,7 @@ wis3d.add_spheres(np.array([[0, 1, 0], [0, 0, 1]]), 0.5, name = 'sphere1')
 wis3d.add_spheres(np.array([[0, 1, 0], [0, 0, 1]]), np.array([0.25, 0.5]),np.array([[0, 255, 0], [0, 0, 255]]), name='sphere2')
 
 ```
-You can also reference to `examples/test.py`. For more usage, see [Documentation](http://dgpu.idr.ai:19092/)
+You can also reference to `examples/test.py`. For more usage, see [Documentation](https://wis3d.readthedocs.io/en/latest/)
 
 ### Start the Web Server
 
