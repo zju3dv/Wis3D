@@ -40,7 +40,7 @@ add_point_cloud
    
    :Parameters:   **vertices** - points constituting the point cloud, shape: `(n, 3)`
 
-      **colors** - colors of the points, shape: `(n, 3)`
+      **colors** - colors of the points, shape: `(n, 3)`, range [0, 255] dtype: `np.uint8` or `torch.byte`
 
       **name** - output name of the point cloud
 
@@ -79,7 +79,7 @@ add_mesh
 
       **faces** - faces of the mesh, shape: `(m, 3)`
 
-      **vertex_colors** - vertex colors of the mesh, shape: `(n, 3)`
+      **vertex_colors** - vertex colors of the mesh, shape: `(n, 3)`, range [0, 255] dtype: `np.uint8` or `torch.byte`
 
       **name** - output name of the mesh
 
@@ -196,7 +196,7 @@ add_voxel
 
       **voxel_size** - size of all boxes
 
-      **colors** - colors of each box, shape: `(n, 3)`
+      **colors** - colors of each box, shape: `(n, 3)`, range [0, 255] dtype: `np.uint8` or `torch.byte`
 
       **name** - output name for the voxel
 
@@ -204,7 +204,7 @@ add_voxel
 add_spheres
 ===========
 
-.. automethod:: Wis3D.add_spheres(self, centers: Union[np.ndarray, torch.Tensor], radius: Union[float, np.ndarray, torch.Tensor], colors=None, scales: Union[np.ndarray, torch.Tensor] = [1, 1, 1], quaternions: Union[np.ndarray, torch.Tensor] = [0, 0, 0, 1], *, name=None) -> None
+.. automethod:: Wis3D.add_spheres(self, centers: Union[np.ndarray, torch.Tensor], radius: Union[float, np.ndarray, torch.Tensor], colors=None, scales=None, quaternions=None, *, name=None) -> None
 
 add_camera_trajectory
 =====================
