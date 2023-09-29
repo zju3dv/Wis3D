@@ -205,7 +205,7 @@ class Wis3D:
 
         :param vertices: points constituting the point cloud, shape: `(n, 3)`
 
-        :param colors: colors of the points, shape: `(n, 3)`
+        :param colors: colors of the points, shape: `(n, 3)`, range [0, 255] dtype: `np.uint8` or `torch.byte`
 
         :param name: output name of the point cloud
         """
@@ -273,7 +273,7 @@ class Wis3D:
 
         :param faces: faces of the mesh, shape: `(m, 3)`
 
-        :param vertex_colors: vertex colors of the mesh, shape: `(n, 3)`
+        :param vertex_colors: vertex colors of the mesh, shape: `(n, 3)`, range [0, 255] dtype: `np.uint8` or `torch.byte`
 
         :param name: output name of the mesh
         """
@@ -489,7 +489,7 @@ class Wis3D:
 
         :param end_points: end point of each line, shape: `(n, 3)` or `(3,)`
 
-        :param colors: colors of the lines, shape: `(n, 3)`
+        :param colors: colors of the lines, shape: `(n, 3)`, range [0, 255] dtype: `np.uint8` or `torch.byte`
 
         :param name: output name for these lines
         """
@@ -552,7 +552,7 @@ class Wis3D:
 
         :param voxel_size: size of all boxes
 
-        :param colors: colors of each box, shape: `(n, 3)`
+        :param colors: colors of each box, shape: `(n, 3)`, range [0, 255] dtype: `np.uint8` or `torch.byte`
 
         :param name: output name for the voxel
         """
@@ -603,15 +603,15 @@ class Wis3D:
             with open(filename, "w") as f:
                 f.write(json.dumps(data))
 
-    def add_spheres(self, centers: Union[np.ndarray, torch.Tensor], radius: Union[float, np.ndarray, torch.Tensor], colors=None, scales: Union[np.ndarray, torch.Tensor] = [1, 1, 1], quaternions: Union[np.ndarray, torch.Tensor] = [0, 0, 0, 1], *, name=None) -> None:
+    def add_spheres(self, centers: Union[np.ndarray, torch.Tensor], radius: Union[float, np.ndarray, torch.Tensor], colors=None, scales=None, quaternions=None, *, name=None) -> None:
         """
         Add spheres
 
         :param centers: center of each sphere, shape: `(n, 3)` or `(3,)`
         :param radius: radius of each sphere, either float or shape of `(n,)` or `(1,)`
-        :param scales: scales of each sphere, shape: `(n, 3)`, defaults to [1,1,1], useful for ellipsoids
-        :param quaternions: rotations of each sphere, format wxyz, shape: `(n, 4)`, defaults to [1,0,0,0], useful for ellipsoids
-        :param colors: colors of each box, shape: `(n, 3)`
+        :param scales: scales of each sphere, shape: `(n, 3)` or `(3,)`, if None, use [1, 1, 1]. Useful when you want to make the spheres ellipsoids
+        :param quaternions: rotations of each sphere, format wxyz, shape: `(n, 4)` or `(4,)`, if None, use [1, 0, 0, 0]. Useful when you want to rotate the spheres
+        :param colors: colors of each box, shape: `(n, 3)`, range [0, 255] dtype: `np.uint8` or `torch.byte`
 
         :param name: output name for the spheres
         """
@@ -622,14 +622,20 @@ class Wis3D:
         centers = self.three_to_world @ np.hstack((centers, np.zeros((n, 1)))).T
         centers = centers[:3, :].T
 
-        scales = tensor2ndarray(scales)
-        scales = np.asarray(scales).reshape(-1, 3)
-        assert len(scales) == len(centers)
+        if scales is None:
+            scales = np.ones((n, 3))
+        else:
+            scales = tensor2ndarray(scales)
+            scales = np.asarray(scales).reshape(-1, 3)
+            assert len(scales) == len(centers)
 
-        quaternions = tensor2ndarray(quaternions)
-        quaternions = np.asarray(quaternions).reshape(-1, 4)
-        quaternions = quaternions[:, [1, 2, 3, 0]]  # wxyz -> xyzw
-        assert len(quaternions) == len(centers)
+        if quaternions is None:
+            quaternions = np.tile(np.array([0, 0, 0, 1]), (n, 1))
+        else:
+            quaternions = tensor2ndarray(quaternions)
+            quaternions = np.asarray(quaternions).reshape(-1, 4)
+            quaternions = quaternions[:, [1, 2, 3, 0]]  # wxyz -> xyzw
+            assert len(quaternions) == len(centers)
 
         if colors is not None:
             colors = tensor2ndarray(colors)

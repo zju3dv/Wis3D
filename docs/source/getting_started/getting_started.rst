@@ -12,14 +12,14 @@ Run the following command to install Wis3D.
 
 .. code-block:: bash
 
-    pip install https://ootts.github.io/wis3d-2.0.0-py3-none-any.whl
+    pip install https://github.com/zju3dv/Wis3D/releases/download/2.0.0/wis3d-2.0.0-py3-none-any.whl
 
 .. _install_from_source:
 
 Installing from source
 ======================
 
-Please refer to https://github.com/ootts/Wis3D2/tree/main
+Please refer to https://github.com/zju3dv/Wis3D/tree/main
 
 
 
@@ -45,7 +45,7 @@ Running examples
 =================
 
 
-Wis3D provides a complete set of testing data and a simple tutorial. See https://github.com/ootts/Wis3D2/blob/main/example/test.py for the example code.
+Wis3D provides a complete set of testing data and a simple tutorial. See https://github.com/zju3dv/Wis3D/blob/main/example/test.py for the example code.
 
 Run python example
 

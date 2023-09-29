@@ -12,7 +12,7 @@ The first step of using Wis3D in your project is to create the Wis3D API.
     wis3d = Wis3D(vis_dir, sequence_name, xyz_pattern)
 
 The ``vis_dir`` is the directory where objects will be saved. Wis3D will create files and subdirectories under this path, 
-so it's better to provide a dedicated ``vis_dir`` separate from your other files.
+so it's better to provide a dedicated ``vis_dir`` separate from your other files. Usually, one ``vis_dir`` is enough for one project.
 
 The ``sequence_name`` is the subdirectory of ``vis_dir``. Wis3D will create scene folders under the ``sequence_name``. You can use ``scene`` to 
 save time-varying data. The default scene id is ``00000``. Different types of data will be saved in the current scene folder. 
@@ -49,7 +49,7 @@ After adding data to the Wis3D, start the Web server.
 ``verbose`` decides whether to let `CherryPy <https://docs.cherrypy.dev/en/latest/>`_ log detailed information, default is ``False``.
 
 
-Command line tools
+Command line tool
 ==============
 
 We provide a command line tool to help you quickly add object files to Wis3D and start the Web server without the need of writing Python code.
@@ -58,7 +58,7 @@ We provide a command line tool to help you quickly add object files to Wis3D and
 
     w3dcli FILES --host HOST
 
-``FILES`` is the files to be added to Wis3D. The files can only be files in the format of jpg, png, ply, and obj.
+``FILES`` is the files to be added to Wis3D. Currently, the files can only be files in the format of jpg, png, ply, and obj.
 
 ``HOST`` is the hostname to run the service, default is `localhost`.
 
@@ -71,9 +71,9 @@ Shortcuts
 +------------------+-----------------------------+
 |Shortcut          |Description                  |
 +==================+=============================+
-|``B``             |Back to initial view         |
+|``b``             |Back to initial view         |
 +------------------+-----------------------------+
-|``Z``             |Change zoom speed            |
+|``z``             |Change zoom speed            |
 +------------------+-----------------------------+
 |``ArrowUp``/      |Control camera panning       |
 |``ArrowDown``/    |                             |
