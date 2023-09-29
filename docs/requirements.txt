@@ -1,2 +1,9 @@
 sphinx>=1.0
 sphinx_rtd_theme
+trimesh
+cherrypy
+pillow
+scipy
+transforms3d
+torch
+termcolor
