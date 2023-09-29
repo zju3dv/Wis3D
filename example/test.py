@@ -1,23 +1,36 @@
-from cv2 import transform
+import trimesh.primitives
+
 from wis3d import Wis3D
 import json
 import os
 import numpy as np
 
-vis_dir = os.path.abspath("./example/visual")
-wis3d = Wis3D(vis_dir, 'test')
+wis3d = Wis3D("example/visual", 'get_started', xyz_pattern=('x', '-y', '-z'))
 
 # Add image
 image_path = os.path.abspath("./example/data/3d_objects/image.jpg")
-wis3d.add_image(image_path)
+wis3d.add_image(image_path, name='example_image')
 
 # Add mesh
 mesh_path = os.path.abspath("./example/data/3d_objects/object_mesh.ply")
-wis3d.add_mesh(mesh_path)
+mesh = trimesh.primitives.Capsule(radius=0.1, height=1.0)
+wis3d.add_mesh(mesh, name='capsule')
 
 # Add point cloud
-pcd_path = os.path.abspath("./example/data/3d_objects/object_pcd.ply")
-wis3d.add_point_cloud(pcd_path, name="pcd0")
+pcd = mesh.sample(1000)
+wis3d.add_point_cloud(pcd, name="pcd")
+
+# Add camera pose
+camera_pose = np.array([[1, 0, 0, 1],
+                        [0, 1, 0, 0],
+                        [0, 0, 1, 0],
+                        [0, 0, 0, 1]])
+wis3d.add_camera_pose(camera_pose, name="camera_pose")
+
+# Add rays
+rays_o = np.zeros([2, 3])
+rays_d = np.array([[0.717, 0.717, 0], [0.866, 0.866, 0.866]])
+wis3d.add_rays(rays_o, rays_d, name="rays")
 
 # Add boxes
 box_position = np.array([0.031110053956829253, 0.14903110053844104, 0.06947125259015194])
