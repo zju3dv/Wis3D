@@ -121,7 +121,7 @@ Open your browser, and enter http://localhost:19090 to see the results.
 
 ## Authors
  - Project lead: [Jiaming Sun](https://jiamingsun.ml), [Xiaowei Zhou](https://xzhou.me)
- - Core members: [Jingmeng Zhang](https://github.com/ahazss), [Hongcheng Zhao](https://github.com/HongchengZhao), [Siyu Zhang](https://derizsy.github.io)
+ - Core members: [Linghao Chen](ootts.github.io), [Jingmeng Zhang](https://github.com/ahazss), [Hongcheng Zhao](https://github.com/HongchengZhao), [Siyu Zhang](https://derizsy.github.io)
  - Past contributors: Zijing Huang
 
 

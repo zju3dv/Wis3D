@@ -5,3 +5,4 @@ pillow
 scipy
 transforms3d
 torch
+termcolor
