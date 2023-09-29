@@ -70,16 +70,9 @@ add_mesh
       **name** - output name of the mesh
 
 
-.. method:: Wis3D.add_mesh
+.. method:: Wis3D.add_mesh(self, vertices: Union[np.ndarray, torch.Tensor], faces: Union[np.ndarray, torch.Tensor], vertex_colors: Union[np.ndarray, torch.Tensor], *, name: str = None) -> None
    :noindex: 
 
-   self,
-   vertices: Union[np.ndarray, torch.Tensor],
-   faces: Union[np.ndarray, torch.Tensor],
-   vertex_colors: Union[np.ndarray, torch.Tensor],
-   *,
-   name: str = None
-   ) -> None:
    Add a mesh loaded by mesh definition
    
    :Parameters:   **vertices** - vertices of the mesh, shape: `(n, 3)`
@@ -179,7 +172,7 @@ add_boxes
 add_lines
 =========
 
-.. automethod:: Wis3D.add_lines(self, start_points: Union[np.ndarray, torch.Tensor], end_points: Union[np.ndarray, torch.Tensor], colors: Union[np.ndarray, torch.Tensor] = None, *, name: str = Non
+.. automethod:: Wis3D.add_lines(self, start_points: Union[np.ndarray, torch.Tensor], end_points: Union[np.ndarray, torch.Tensor], colors: Union[np.ndarray, torch.Tensor] = None, *, name: str = None) -> None
 
 add_voxel
 =========
@@ -211,17 +204,17 @@ add_voxel
 add_spheres
 ===========
 
-.. automethod:: Wis3D.add_spheres
+.. automethod:: Wis3D.add_spheres(self, centers: Union[np.ndarray, torch.Tensor], radius: Union[float, np.ndarray, torch.Tensor], colors=None, scales: Union[np.ndarray, torch.Tensor] = [1, 1, 1], quaternions: Union[np.ndarray, torch.Tensor] = [0, 0, 0, 1], *, name=None) -> None
 
 add_camera_trajectory
 =====================
 
-.. automethod:: Wis3D.add_camera_trajectory
+.. automethod:: Wis3D.add_camera_trajectory(self, poses: Union[np.ndarray, torch.Tensor], is_opencv=None, *, name: str = None) -> None
 
 add_keypoint_correspondences
 ============================
 
-.. automethod:: Wis3D.add_keypoint_correspondences
+.. automethod:: Wis3D.add_keypoint_correspondences(self, img0, img1, kpts0: Union[np.ndarray, torch.Tensor], kpts1, *, unmatched_kpts0=None, unmatched_kpts1=None, metrics: Dict[str, Iterable[int]] = None, booleans: Dict[str, Iterable[bool]] = None, meta: Dict[str, Any] = None, name: str = None) -> None
 
 increase_scene_id
 =================
