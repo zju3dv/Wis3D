@@ -20,14 +20,13 @@ pcd_path = os.path.abspath("./example/data/3d_objects/object_pcd.ply")
 wis3d.add_point_cloud(pcd_path, name="pcd0")
 
 # Add boxes
-box_position = np.array([0.031110053956829253,0.14903110053844104,0.06947125259015194])
-box_euler = np.array([0.2983695071801829,0,0])
-box_scale = np.array([0.10659366288916065,0.25998074671930477,0.11320996768381944])
+box_position = np.array([0.031110053956829253, 0.14903110053844104, 0.06947125259015194])
+box_euler = np.array([0.2983695071801829, 0, 0])
+box_scale = np.array([0.10659366288916065, 0.25998074671930477, 0.11320996768381944])
 wis3d.add_boxes(box_position, box_euler, box_scale)
 
 # Add sphere
-wis3d.add_spheres(np.array([0.0170813, 0.1977202, 0.05446463]),0.32, colors=np.array([255, 255, 255]))
-
+wis3d.add_spheres(np.array([0.0170813, 0.1977202, 0.05446463]), 0.32, colors=np.array([255, 255, 255]))
 
 # Add keypoint correspondences
 img0_path = os.path.abspath("./example/data/keypoint_correspondences/img0.png")
@@ -38,8 +37,8 @@ with open(keypoints_path, 'r') as f:
 
 wis3d.add_keypoint_correspondences(img0_path,
                                    img1_path,
-                                   kpts0 = keypoints_data["kpts0"],
-                                   kpts1 = keypoints_data["kpts1"],
+                                   kpts0=keypoints_data["kpts0"],
+                                   kpts1=keypoints_data["kpts1"],
                                    metrics={
                                        "epi_errs": keypoints_data["epi_errs"],
                                        "mconf": keypoints_data["mconf"]

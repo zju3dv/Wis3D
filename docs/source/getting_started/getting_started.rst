@@ -8,35 +8,44 @@ Getting started
 Installing from wheel file
 ==========================
 
-Install
--------
-
-Go to the `GitHub release page <https://gitlab.sh.sensetime.com/3dv-research/wis3d/-/releases>`_ 
-and download the latest release. Then run 
+Run the following command to install Wis3D.
 
 .. code-block:: bash
 
-    pip install wis3d
+    pip install https://ootts.github.io/wis3d-2.0.0-py3-none-any.whl
+
+.. _install_from_source:
+
+Installing from source
+======================
+
+Please refer to https://github.com/ootts/Wis3D2/tree/main
+
 
 
 Verify installation
-------
+======================
 
-Now, try importing Wis3D.
 
 .. code-block:: bash
 
     python -c "from wis3d import Wis3D"
 
-If this works, Wis3D has been successfully installed. Congratulations!
+If there is no error, Wis3D has been successfully installed.
 
+.. _important note:
+
+Important note
+=================
+When using Wis3D, please always keep the browser inspector window open and make sure the ``Disable cache`` option in ``Network`` tab is checked. Otherwise, the browser may not update the visualization correctly.
 
 .. _running_examples:
 
 Running examples
 =================
 
-Wis3D provides a complete set of testing data and a simple tutorial. See ``example`` for more details.
+
+Wis3D provides a complete set of testing data and a simple tutorial. See https://github.com/ootts/Wis3D2/blob/main/example/test.py for the example code.
 
 Run python example
 

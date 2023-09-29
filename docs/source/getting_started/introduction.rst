@@ -15,12 +15,14 @@ The visualizer contains works like `Tensorboard <https://www.tensorflow.org/tens
   
   * mesh
   * point cloud
-  * camera trajectory
-  * voxel grid
+  * camera pose
+  * ray
+  * image
   * box
   * sphere
   * line
-  * image
+  * camera trajectory
+  * voxel grid
 
 * Keypoint correspondences visualization
 * Time-varying data visualization with 3D objects and keypoint correspondences
@@ -29,7 +31,7 @@ The visualizer contains works like `Tensorboard <https://www.tensorflow.org/tens
 Wis3D is mainly composed of two parts, ``3D objects`` and ``Keypoint Correspondences``. 
 For more information, please visit the tutorials :doc:`../tutorials/3d_objects` and :doc:`../tutorials/keypoint_correspondences`. 
 
-Get started with Wis3D!
+:doc:`./getting_started` with Wis3D!
 
 .. image:: ../_static/introduction/3d_scene_demo.gif
   :alt: 3D Scene Demo

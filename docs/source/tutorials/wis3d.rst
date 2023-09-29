@@ -64,3 +64,35 @@ We provide a command line tool to help you quickly add object files to Wis3D and
 
 This command line will automatically create a temporary directory to save the files and start the Web server. The temporary directory will be deleted after the Web server is closed.
 
+
+Shortcuts
+========
+
++------------------+-----------------------------+
+|Shortcut          |Description                  |
++==================+=============================+
+|``B``             |Back to initial view         |
++------------------+-----------------------------+
+|``Z``             |Change zoom speed            |
++------------------+-----------------------------+
+|``ArrowUp``/      |Control camera panning       |
+|``ArrowDown``/    |                             |
+|``ArrowRight``/   |                             |
+|``ArrowLeft``     |                             |
++------------------+-----------------------------+
+|``a``             |Switch to previous scene     |
++------------------+-----------------------------+
+|``d``             |Switch to next scene         |
++------------------+-----------------------------+
+|``q``             |Switch to the first scene    |
++------------------+-----------------------------+
+|``e``             |Switch to the last scene     |
++------------------+-----------------------------+
+|``r``             |Refresh the page             |
++------------------+-----------------------------+
+|``w``/``s``       |Change sequence              |
++------------------+-----------------------------+
+|Double            |Reset object to center and   |
+|Click             |zoom in                      |
++------------------+-----------------------------+
+

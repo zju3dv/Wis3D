@@ -13,7 +13,6 @@ Wis3D: A web-based 3D visualization tool for 3D computer vision
 
    getting_started/introduction
    getting_started/getting_started
-   getting_started/compilation
 
 
 .. toctree::
