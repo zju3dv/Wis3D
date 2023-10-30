@@ -48,7 +48,7 @@ Please reference to `examples/test.py`. For more usage, see [Documentation](http
 Start the web service to view the visualization in the browser.
 
 ```bash
-wis3d --vis_dir $path_to_vis_dir --host 0.0.0.0 -port 19090
+wis3d --vis_dir $path_to_vis_dir --host 0.0.0.0 --port 19090
 ```
 
 Open your browser, and enter http://localhost:19090 to see the results.
