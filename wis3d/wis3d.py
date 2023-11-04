@@ -125,6 +125,7 @@ class Wis3D:
             self.sequence_name = sequence_name
             if xyz_pattern is None:
                 xyz_pattern = Wis3D.default_xyz_pattern
+            self.xyz_pattern = xyz_pattern
             self.three_to_world = self.__get_world_transform(xyz_pattern)
             self.counters = {}
             for key in folder_names:
@@ -301,21 +302,28 @@ class Wis3D:
         :return:
         """
         if not self.enable: return
-        if isinstance(vertices, str):
-            mesh = trimesh.load_mesh(vertices)
-        elif isinstance(vertices, trimesh.Trimesh):
-            mesh = vertices.copy()
-        elif isinstance(vertices, (np.ndarray, torch.Tensor)):
-            vertices = tensor2ndarray(vertices)
-            faces = tensor2ndarray(faces)
-            vertex_colors = tensor2ndarray(vertex_colors)
-            mesh = trimesh.Trimesh(vertices, faces, vertex_colors=vertex_colors)
+        if isinstance(vertices, str) and vertices.endswith(".glb"):
+            if self.xyz_pattern != ('x', 'y', 'z'):
+                print(self.xyz_pattern)
+                warnings.warn("xyz_pattern is not ('x', 'y', 'z'), but a glb file is provided. xyz_pattern will be ignored.")
+            filename = self.__get_export_file_name("mesh", name)
+            filename = filename.replace(".ply", ".glb")
+            os.system(f"cp {vertices} {filename}")
         else:
-            raise NotImplementedError()
-
-        mesh.apply_transform(self.three_to_world)
-        filename = self.__get_export_file_name("mesh", name)
-        mesh.export(filename)
+            if isinstance(vertices, str):
+                mesh = trimesh.load_mesh(vertices)
+            elif isinstance(vertices, trimesh.Trimesh):
+                mesh = vertices.copy()
+            elif isinstance(vertices, (np.ndarray, torch.Tensor)):
+                vertices = tensor2ndarray(vertices)
+                faces = tensor2ndarray(faces)
+                vertex_colors = tensor2ndarray(vertex_colors)
+                mesh = trimesh.Trimesh(vertices, faces, vertex_colors=vertex_colors)
+            else:
+                raise NotImplementedError()
+            mesh.apply_transform(self.three_to_world)
+            filename = self.__get_export_file_name("mesh", name)
+            mesh.export(filename)
 
     @overload
     def add_image(self, path: str, *, name: str = None) -> None:
@@ -537,9 +545,9 @@ class Wis3D:
         """
         Add voxels by binvox/vox file
 
-        @param path: path to the BINVOX or VOX file
+        :param path: path to the BINVOX or VOX file
 
-        @param name: output name for these lines
+        :param name: output name for these lines
         """
         pass
 
@@ -665,12 +673,11 @@ class Wis3D:
         with open(filename, "w") as f:
             f.write(json.dumps(spheres))
 
-    def add_camera_trajectory(self, poses: Union[np.ndarray, torch.Tensor], is_opencv=None, *, name: str = None) -> None:
+    def add_camera_trajectory(self, poses: Union[np.ndarray, torch.Tensor], *, name: str = None) -> None:
         """
         Add a camera trajectory
 
         :param poses: transformation matrices of shape `(n, 4, 4)`
-
         :param name: output name of the camera trajectory
         """
         if not self.enable: return
@@ -680,15 +687,15 @@ class Wis3D:
 
         poses = (self.three_to_world @ poses.T).T
 
-        if is_opencv is None:
-            warnings.warn(
-                "is_opencv is not specified, assuming True. To preserve old behavior, specify is_opencv=False.")
-            is_opencv = True
-        if is_opencv:
-            poses[:, :, [1, 2]] *= -1
-            axes = "rxyz"
-        else:
-            axes = 'sxyz'
+        # if is_opencv is None:
+        #     warnings.warn(
+        #         "is_opencv is not specified, assuming True. To preserve old behavior, specify is_opencv=False.")
+        #     is_opencv = True
+        # if is_opencv:
+        poses[:, :, [1, 2]] *= -1
+        axes = "rxyz"
+        # else:
+        #     axes = 'sxyz'
         quats = []
         positions = poses[:, :3, 3].reshape((-1, 3))
         for pose in poses:
@@ -818,7 +825,7 @@ class Wis3D:
 
     def add_camera_pose(self, pose: Union[np.ndarray, torch.Tensor], *, name: str = None) -> None:
         """
-        Add a camera pose (w2c)
+        Add a camera pose (w2c). We use OpenCV convention for camera pose.
 
         :param pose: transformation matrices of shape `(4, 4)`. Definition:
 
@@ -830,7 +837,7 @@ class Wis3D:
         """
         if not self.enable:
             return
-        self.add_camera_trajectory(pose[None], is_opencv=True, name=name)
+        self.add_camera_trajectory(pose[None], name=name)
 
     def add_rays(self, rays_o, rays_d, max=10.0, min=0.0, sample=1.0, name=None):
         """
