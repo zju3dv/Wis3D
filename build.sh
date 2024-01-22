@@ -1,3 +1,5 @@
+set -e
+
 cd wis3d/app
 npm install # install dependencies
 npx next build
