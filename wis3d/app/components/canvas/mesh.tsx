@@ -109,11 +109,34 @@ const PlyMesh = memo<IProps>(function PlyMesh(props) {
     ) : null;
 });
 
+
+function extractPath(url) {
+    // Split the URL at "path="
+    const parts = url.split("path=");
+
+    // Check if the "path=" part exists
+    if (parts.length < 2) {
+        return null; // "path=" not found in the URL
+    }
+
+    // Take the part after "path="
+    const pathAndRest = parts[1];
+
+    // Split this part at the first "&"
+    const pathPart = pathAndRest.split("&")[0];
+
+    // Decode the path
+    const decodedPath = decodeURIComponent(pathPart);
+
+    return decodedPath;
+}
+
 export const Mesh = memo<IProps>(function Mesh(props) {
-    console.log("props.url", props.url, props.url.endsWith("ply"), props.url.endsWith("obj"), props.url.endsWith("glb"));
-    if (props.url.endsWith("ply")) {
+    const decodedPath = extractPath(props.url);
+    console.log("props.url", props.url,"decodedPath",decodedPath, decodedPath.endsWith("ply"), decodedPath.endsWith("obj"));
+    if (decodedPath.endsWith("ply")) {
         return <PlyMesh {...props} />;
-    } else if (props.url.endsWith("obj")) {
+    } else if (decodedPath.endsWith("obj")) {
         return <ObjMesh {...props} />;
     }
     // else if (props.url.endsWith("glb")) {
@@ -121,9 +144,9 @@ export const Mesh = memo<IProps>(function Mesh(props) {
     //     return <GlbMesh {...props} />;
     // }
     else {
-        console.log(props.url, "else");
-        props.url = "/file?path=%2FUsers%2Fchenlinghao%2FPycharmProjects%2FWis3D_official%2Ftests%2Fdbg%2Fadd_glb%2F00000%2Fmeshes%2F00059.ply"
-        return <PlyMesh {...props} />;
+        console.log("unsupported file format");
+        // props.url = "/file?path=%2FUsers%2Fchenlinghao%2FPycharmProjects%2FWis3D_official%2Ftests%2Fdbg%2Fadd_glb%2F00000%2Fmeshes%2F00059.ply"
+        // return <PlyMesh {...props} />;
     }
 });
 
