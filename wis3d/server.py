@@ -15,7 +15,7 @@ class Visualizer:
         return open(os.path.join(self.static_dir, "index.html"), encoding="utf-8")
 
     @cherrypy.expose
-    def file(self, path):
+    def file(self, path, _ts=None):
         res = path.split(os.sep)
         vis_dir = os.sep.join(res[0:-4])
         if vis_dir == self.vis_dir:

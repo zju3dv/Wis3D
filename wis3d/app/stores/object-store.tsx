@@ -30,9 +30,10 @@ export const useObjectStore = create(
           for (const key in objects) {
             objDict[key] = objects[key].map((path: string) => {
               const name = getFileName(path);
+              const randomParam = `_ts=${Math.random()}`;
               return {
                 path,
-                url: `${baseUrl}/file?path=${encodeURIComponent(path)}`,
+                url: `${baseUrl}/file?path=${encodeURIComponent(path)}&${randomParam}`,
                 name,
                 visible: true,
                 select: false,
