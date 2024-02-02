@@ -13,9 +13,9 @@ interface IProps {
 
 function getMaterial(material: string, color: string | number) {
     if (material === "MeshNormalMaterial") {
-        return (<meshNormalMaterial transparent={true} opacity={0.8}/>);
+        return (<meshNormalMaterial transparent={true} depthWrite={false} opacity={0.8}/>);
     } else if (material === "MeshBasicMaterial") {
-        return (<meshBasicMaterial color={color} transparent={true} opacity={0.7}/>);
+        return (<meshBasicMaterial color={color} transparent={true} depthWrite={false} opacity={0.7}/>);
     }
 }
 

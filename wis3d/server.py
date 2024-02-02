@@ -3,6 +3,7 @@ import os
 import cherrypy
 import glob
 import socket
+from .version import __version__
 
 
 class Visualizer:
@@ -98,8 +99,7 @@ def run_server(
     cherrypy.engine.signals.subscribe()
     # try:
     cherrypy.engine.start()
-    print(f"Serving on http://{host}:{port}")
+    print(f"Wis3D {__version__} serving on http://{host}:{port}")
     cherrypy.engine.block()
-    # except KeyboardInterrupt:
     cherrypy.engine.stop()
     cherrypy.engine.exit()
