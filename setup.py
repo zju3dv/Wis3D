@@ -46,7 +46,8 @@ setup(
     entry_points={
         'console_scripts': [
             'wis3d = wis3d:main',
-            'w3dcli = wis3d.cli:main'
+            'w3dcli = wis3d.cli:main',
+            'wis3d_quickstart = wis3d.quickstart:main'
         ]
     },
 )
