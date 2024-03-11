@@ -37,9 +37,18 @@ If there is no error, Wis3D has been successfully installed.
 
 Important note
 =================
-When using Wis3D, please always keep the browser inspector window open and make sure the ``Disable cache`` option in ``Network`` tab is checked. Otherwise, the browser may not update the visualization correctly.
+When using Wis3D<2.0.1, please always keep the browser inspector window open and make sure the ``Disable cache`` option in ``Network`` tab is checked. Otherwise, the browser may not update the visualization correctly.
 
 .. _running_examples:
+
+Quickstart
+=================
+
+.. code-block:: bash
+
+    wis3d_quickstart --host {host}
+
+host: The host address of the web service. Default is localhost.
 
 Running examples
 =================

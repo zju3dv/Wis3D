@@ -31,16 +31,15 @@ const onMouseDown = (ev: MouseEvent) => {
 };
 
 const base = process.env.NODE_ENV === "production" ? "" : "http://dgpu.idr.ai:19091";
-
 const Home = memo(function Home() {
     const router = useRouter();
     const tab = router.query.tab as string || "3d";
-    const sequence = router.query.sequence as string;
+    const seqs = useXHR(`${base}/all_sequences`, "GET", "json", []);
+    const sequence = router.query.sequence as string || seqs[0];
+    const seqName = sequence;
     const [frameIndex, setFrameIndex] = useState(0);
     const store1 = useCreateStore();
     const store2 = useCreateStore();
-    const seqs = useXHR(`${base}/all_sequences`, "GET", "json", []);
-    const seqName = sequence || seqs[0];
     const framesUrl = seqName && `${base}/all_scenes_in_sequence?sequence=${encodeURIComponent(seqName)}`;
     const frames = useXHR(framesUrl, "GET", "json", [], (ev) => {
         const length = (ev.currentTarget as XMLHttpRequest).response?.length;
@@ -114,11 +113,15 @@ const Home = memo(function Home() {
         };
     }, []);
 
+
     const onClickTab = useCallback(
         (item: PivotItem) => {
             const url: UrlObject = {
                 pathname: "/",
-                query: sequence ? {tab: item.props.itemKey, sequence: sequence} : {tab: item.props.itemKey}
+                query: sequence ? {
+                    tab: item.props.itemKey,
+                    sequence: sequence,
+                } : {tab: item.props.itemKey}
             };
             router.push(url, url, {shallow: true});
         },

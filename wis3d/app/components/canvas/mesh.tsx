@@ -1,9 +1,11 @@
 import {useLoader} from "@/utils/hooks";
 import {memo, useRef, useMemo, useLayoutEffect, MutableRefObject} from "react";
 import {FrontSide, Material, Side} from "three";
+import {SpotLight} from "three";
 import {OBJLoader} from "three/examples/jsm/loaders/OBJLoader";
 import {PLYLoader} from "three/examples/jsm/loaders/PLYLoader";
 import {centerOnDbClick} from "./trackball-controls";
+// import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
 
 interface IProps {
     url: string;
@@ -71,6 +73,12 @@ function getMaterial(
     }
 }
 
+// const GlbMesh = memo<IProps>(function GlbMesh(props) {
+//     const {url /* , vertexColors, color, visible, wireframe, side, flatShading, shininess */} = props;
+//     const obj = useLoader(GLTFLoader, url);
+//
+//     return obj && <primitive object={obj}/>;
+// });
 const ObjMesh = memo<IProps>(function ObjMesh(props) {
     const {url /* , vertexColors, color, visible, wireframe, side, flatShading, shininess */} = props;
     const obj = useLoader(OBJLoader, url);
@@ -101,8 +109,45 @@ const PlyMesh = memo<IProps>(function PlyMesh(props) {
     ) : null;
 });
 
+
+function extractPath(url) {
+    // Split the URL at "path="
+    const parts = url.split("path=");
+
+    // Check if the "path=" part exists
+    if (parts.length < 2) {
+        return null; // "path=" not found in the URL
+    }
+
+    // Take the part after "path="
+    const pathAndRest = parts[1];
+
+    // Split this part at the first "&"
+    const pathPart = pathAndRest.split("&")[0];
+
+    // Decode the path
+    const decodedPath = decodeURIComponent(pathPart);
+
+    return decodedPath;
+}
+
 export const Mesh = memo<IProps>(function Mesh(props) {
-    return props.url.endsWith("ply") ? <PlyMesh {...props} /> : <ObjMesh url={props.url}/>;
+    const decodedPath = extractPath(props.url);
+    console.log("props.url", props.url,"decodedPath",decodedPath, decodedPath.endsWith("ply"), decodedPath.endsWith("obj"));
+    if (decodedPath.endsWith("ply")) {
+        return <PlyMesh {...props} />;
+    } else if (decodedPath.endsWith("obj")) {
+        return <ObjMesh {...props} />;
+    }
+    // else if (props.url.endsWith("glb")) {
+    //     console.log("glb");
+    //     return <GlbMesh {...props} />;
+    // }
+    else {
+        console.log("unsupported file format");
+        // props.url = "/file?path=%2FUsers%2Fchenlinghao%2FPycharmProjects%2FWis3D_official%2Ftests%2Fdbg%2Fadd_glb%2F00000%2Fmeshes%2F00059.ply"
+        // return <PlyMesh {...props} />;
+    }
 });
 
 export default Mesh;

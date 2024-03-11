@@ -56,7 +56,7 @@ export const Box = memo<IProps>(function Box(props) {
     <group visible={visible} position={position} rotation={euler}>
       <mesh ref={mesh} scale={extent} onPointerOver={onPointerOver} onPointerOut={onPointerOut} onClick={onClick} onDoubleClick={centerOnDbClick}>
         <boxBufferGeometry ref={setGeometry} />
-        <meshBasicMaterial vertexColors={false} color={color} transparent={true} opacity={opacity} />
+        <meshBasicMaterial vertexColors={false} color={color} transparent={true} depthWrite={false} opacity={opacity} />
       </mesh>
       <axesHelper args={axesArgs} visible={showAxes} />
       {geometry && (

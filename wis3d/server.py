@@ -3,6 +3,7 @@ import os
 import cherrypy
 import glob
 import socket
+from .version import __version__
 
 
 class Visualizer:
@@ -15,7 +16,7 @@ class Visualizer:
         return open(os.path.join(self.static_dir, "index.html"), encoding="utf-8")
 
     @cherrypy.expose
-    def file(self, path):
+    def file(self, path, _ts=None):
         res = path.split(os.sep)
         vis_dir = os.sep.join(res[0:-4])
         if vis_dir == self.vis_dir:
@@ -98,8 +99,7 @@ def run_server(
     cherrypy.engine.signals.subscribe()
     # try:
     cherrypy.engine.start()
-    print(f"Serving on http://{host}:{port}")
+    print(f"Wis3D {__version__} serving on http://{host}:{port}")
     cherrypy.engine.block()
-    # except KeyboardInterrupt:
     cherrypy.engine.stop()
     cherrypy.engine.exit()
