@@ -216,7 +216,8 @@ const trajectorySchema = {
     cameraFollow: {
         label: "camera follow",
         hint: "camera follow",
-        value: (JSON.parse(localStorage.getItem("trajectory.cameraFollow")) as boolean) ?? false
+        // value: (JSON.parse(localStorage.getItem("trajectory.cameraFollow")) as boolean) ?? false // refresh raises error. not sure why. commented out for now.
+        value: false
     },
     pointSize: {
         value: (JSON.parse(localStorage.getItem("trajectory.pointSize")) as number) ?? 0.03,
